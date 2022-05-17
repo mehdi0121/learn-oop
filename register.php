@@ -1,40 +1,63 @@
 <?php
 
-try {
-    $conn=new Pdo("mysql:host=localhost;dbname=oop_new","root","");
+include "CustomeError.php";
 
-} catch (\Throwable $e) {
-    throw $e;
-}
+$error=new CustomeError();
+
 
     if($_SERVER['REQUEST_METHOD']=="POST"){
         $name=$_POST['name'];
         $username=$_POST['username'];
         $email=$_POST['email'];
-        $password=md5($_POST['password']);
+        $password=$_POST['password'];
 
-        $findeIfExistsST=$conn->prepare('SELECT * from users WHERE email=:email or username=:username');
-        $findeIfExistsST->bindParam(':username',$username);
-        $findeIfExistsST->bindParam(':email',$email);
-        $findeIfExistsST->execute();
 
-        if(!empty($findeIfExistsST->fetchAll())){
-           echo "username or email exists";
-           die();
-        }
-        $CreateNewUserST=$conn->prepare("INSERT INTO users (name,username,email,password) values (:name,:username,:email,:password)");
-        $CreateNewUserST->bindParam(":name",$name);
-        $CreateNewUserST->bindParam(":username",$username);
-        $CreateNewUserST->bindParam(":email",$email);
-        $CreateNewUserST->bindParam(":password",$password);
 
-        var_dump($CreateNewUserST->execute());
+        if(trim($name)=='')
+            $error->set('name','فیلد نام خالی است');
+        if(trim($username)=='')
+            $error->set('username','فیلد نام کاربری خالی است');
+        if(trim($email)=='')
+            $error->set('email','فیلد ایمیل خالی است');
+        if(trim($password)=='')
+            $error->set('password','فیلد پسورد خالی است');
 
-        if($CreateNewUserST->execute()){
-            echo "You have been successfuly registerd in our site now pleas login";
-            header("location:./login.php");
-            die();
-        }
+
+            if($error->count()<=0){
+
+                try {
+                    $conn=new Pdo("mysql:host=localhost;dbname=oop_new","root","");
+                } catch (\Throwable $e) {
+                    throw $e;
+                }
+                $password=md5($_POST['password']);
+                $CreateNewUserST=$conn->prepare("INSERT INTO users (name,username,email,password) values (:name,:username,:email,:password)");
+                $CreateNewUserST->execute(compact('name','username','email','password'));
+                if($CreateNewUserST->execute()){
+                    echo "You have been successfuly registerd in our site now pleas login";
+                    header("location:./login.php");
+                    die();
+                }
+
+            }
+
+
+
+
+
+
+
+
+
+        // $findeIfExistsST=$conn->prepare('SELECT * from users WHERE email=:email or username=:username');
+        // $findeIfExistsST->bindParam(':username',$username);
+        // $findeIfExistsST->bindParam(':email',$email);
+        // $findeIfExistsST->execute();
+
+        // if(!empty($findeIfExistsST->fetchAll())){
+        //    echo "username or email exists";
+        //    die();
+        // }
 
 
 
@@ -70,7 +93,10 @@ try {
                         Name
                     </label>
                     <div class="mt-1">
-                        <input id="name" name="name" type="text" autocomplete="name" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input id="name" name="name" type="text" autocomplete="name"  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <?php if($error->has('name')): ?>
+                            <span class="text-red-500 text-sm"><?= $error->first('name') ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div>
@@ -78,7 +104,10 @@ try {
                         Username
                     </label>
                     <div class="mt-1">
-                        <input id="username" name="username" type="text" autocomplete="username" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input id="username" name="username" type="text" autocomplete="username"  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <?php if($error->has('username')): ?>
+                            <span class="text-red-500 text-sm"><?= $error->first('username') ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div>
@@ -86,7 +115,10 @@ try {
                         Email address
                     </label>
                     <div class="mt-1">
-                        <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input id="email" name="email" type="email" autocomplete="email"  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <?php if($error->has('email')): ?>
+                            <span class="text-red-500 text-sm"><?= $error->first('email') ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -95,7 +127,10 @@ try {
                         Password
                     </label>
                     <div class="mt-1">
-                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input id="password" name="password" type="password" autocomplete="current-password"  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <?php if($error->has('password')): ?>
+                            <span class="text-red-500 text-sm"><?= $error->first('password') ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
 

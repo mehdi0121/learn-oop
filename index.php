@@ -1,5 +1,28 @@
 <?php
 
+$db=new DB();
+
+
+$db->create( [
+            'name'=>'mehdi',
+            'username'=>'mehdi0121',
+            'email'=>'mehdi',
+            'is_admin'=>true,
+            'is_Active'=>true,
+            'password'=>"test"
+        ]);
+
+
+
+die();
+
+
+
+
+
+
+
+
 $host="127.0.0.1";
 $username="root";
 $password="";
